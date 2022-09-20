@@ -1,9 +1,9 @@
 param registryName string
-param registryLoc string
+param registryLocation string
 
 resource registry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' = {
   name: registryName
-  location: 'centralus'
+  location: registryLocation
   sku: {
     name: 'Standard'
   }
