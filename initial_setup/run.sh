@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # This script creates the necessary registry infrastructure and configures GitHub OpenID Connect to allow
 # GitHub actions to push to the registry in its CD pipeline.
@@ -8,14 +9,15 @@
 
 tenantId=$1
 subId=$2
-registryName=bicepproviderregistry
+registryName=bicepprovidersregistry
 registryLocation=centralus
 rgName=bicep-registry-providers
 repoName=bicep-registry-providers
 repoSubject=repo:Azure/$repoName:ref:refs/heads/main
 
+az account set -n $subId
 az group create \
-  --location $registryLocation
+  --location $registryLocation \
   --name $rgName
 az deployment group create \
   --resource-group $rgName \
@@ -30,7 +32,7 @@ appOid=$(echo $appCreate | jq -r '.id')
 
 spCreate=$(az ad sp create --id $appId)
 spId=$(echo $spCreate | jq -r '.id')
-az role assignment create --role contributor --subscription $subId --assignee-object-id $spId --assignee-principal-type ServicePrincipal --scope /subscriptions/$subId/resourceGroups/ant-test
+az role assignment create --role contributor --subscription $subId --assignee-object-id $spId --assignee-principal-type ServicePrincipal --scope /subscriptions/$subId/resourceGroups/$rgName
 
 az rest --method POST --uri "https://graph.microsoft.com/beta/applications/$appOid/federatedIdentityCredentials" --body '{"name":"'$repoName'","issuer":"https://token.actions.githubusercontent.com","subject":"'$repoSubject'","description":"GitHub OIDC Connection","audiences":["api://AzureADTokenExchange"]}'
 
