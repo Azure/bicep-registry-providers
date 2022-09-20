@@ -1,4 +1,3 @@
-import { Octokit } from "@octokit/rest";
 import express, { ErrorRequestHandler } from "express";
 import { Repository } from "./api/repository";
 import { ExtensibilityError, isRepositoryOperationRequest } from "./models";
