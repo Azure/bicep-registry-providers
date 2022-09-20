@@ -8,10 +8,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  AKS_RG_NAME: 'bicepbuild'
-  AKS_CLUSTER_NAME: 'bicepbuild'
-  AKS_ADMIN_NAME: 'lore'
-  AKS_ADMIN_RSA_PUBKEY: '.......'
 
 jobs:
   push-image:
