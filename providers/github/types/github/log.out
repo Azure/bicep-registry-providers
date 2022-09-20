@@ -1,0 +1,13 @@
+AutoRest code generation utility [cli version: 3.6.2; node: v16.15.1]
+(C) 2018 Microsoft Corporation.
+https://aka.ms/autorest
+info    |    Loading AutoRest core      'E:\Repos\bicep-registry-providers\src\generator\node_modules\@autorest\core\dist' (3.9.2)
+info    |    Loading local AutoRest extension '@autorest/bicep' (E:/Repos/bicep-registry-providers/src/autorest.bicep)
+info    |    Loading AutoRest extension '@autorest/modelerfour' (*->4.19.0)
+info    | Processing batch task - {"tag":"github-2022-09-01-preview"} .
+info    |    Loading local AutoRest extension '@autorest/bicep' (E:/Repos/bicep-registry-providers/src/autorest.bicep)
+info    |    Loading AutoRest extension '@autorest/modelerfour' (*->4.19.0)
+warning | SkippedSemanticValidation | Semantic validation was skipped.
+warning | PreCheck/CheckDuplicateSchemas | Checking for duplicate schemas, this could take a (long) while.  Run with --verbose for more detail.
+info    | autorest.bicep took 5ms
+info    | Autorest completed in 2.79s. 2 files generated.
