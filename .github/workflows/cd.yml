@@ -8,6 +8,13 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  ACR_REGISTRY: bicepprovidersregistry
+  BICEP_PROVIDER_NAME: github
+  BICEP_PROVIDER_VERSION: v1
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   push-image:
@@ -40,3 +47,29 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  push-server:
+    name: Push Server Container
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Az CLI login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.ACR_CLIENT_ID }}
+          tenant-id: ${{ secrets.ACR_TENANT_ID }}
+          subscription-id: ${{ secrets.ACR_SUBSCRIPTION_ID }}
+
+      - name: ACR login
+        run: |
+          az acr login -n ${{ env.ACR_REGISTRY }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./providers/github/server
+          push: true
+          tags: ${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.BICEP_PROVIDER_NAME }}/server:${{ env.BICEP_PROVIDER_VERSION }}
