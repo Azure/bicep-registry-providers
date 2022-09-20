@@ -6,8 +6,6 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
   ACR_REGISTRY: bicepprovidersregistry
   BICEP_PROVIDER_NAME: github
   BICEP_PROVIDER_VERSION: v1
@@ -17,36 +15,41 @@ permissions:
   contents: read
 
 jobs:
-  push-image:
+  push-types:
+    name: Push Types Container
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      - name: Install oras CLI
+        run: |
+          curl -LO https://github.com/oras-project/oras/releases/download/v0.14.1/oras_0.14.1_linux_amd64.tar.gz
+          mkdir -p oras-install/
+          tar -zxf oras_0.14.1_*.tar.gz -C oras-install/
+          mv oras-install/oras /usr/local/bin/
+          rm -rf oras_0.14.1_*.tar.gz oras-install/
+        working-directory: ${{ env.RUNNER_TEMP }}
+        
+      - name: Az CLI login
+        uses: azure/login@v1
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          client-id: ${{ secrets.ACR_CLIENT_ID }}
+          tenant-id: ${{ secrets.ACR_TENANT_ID }}
+          subscription-id: ${{ secrets.ACR_SUBSCRIPTION_ID }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Generate types.zip
+        run: |
+          cd ./providers/github/types
+          zip -r ../types.zip ./
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: ./src
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+      - name: Upload to registry
+        run: |
+          az acr login -n ${{ env.ACR_REGISTRY }}
+          oras push '${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.BICEP_PROVIDER_NAME }}/types:${{ env.BICEP_PROVIDER_VERSION }}' \
+            --config /dev/null:application/vnd.ms.bicep.types.config.v1+json \
+            ./providers/github/types.zip:application/vnd.ms.bicep.types.layer.v1+zip
 
   push-server:
     name: Push Server Container
