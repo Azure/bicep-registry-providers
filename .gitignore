@@ -359,3 +359,6 @@ code-model-v1
 /workflow-temp
 
 dist/
+
+# Go Build directory
+providers/http/server/build/
