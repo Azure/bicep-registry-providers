@@ -1,20 +1,11 @@
-import express, { ErrorRequestHandler } from "express";
+import express from "express";
 import { Repository } from "./api/repository";
-import { ExtensibilityError, isRepositoryOperationRequest } from "./models";
+import { isRepositoryOperationRequest } from "./models";
 import {
   createSuccessResponse,
   unsupportedResourceTypeResponse,
 } from "./responses";
-
-const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  const error: ExtensibilityError = {
-    code: "UhOh",
-    message: `Something unexpected happened: ${err}`,
-    target: "",
-  };
-
-  res.status(400).json(error);
-};
+import { errorHandler, extensibilityContractValidator, runAsyncWrapper } from "./middleware";
 
 const port = 8080;
 const host = "0.0.0.0";
@@ -25,7 +16,7 @@ process.on("SIGINT", () => process.exit(0));
 
 app.use(express.json());
 
-app.post("/Get", async ({ body }, res) => {
+app.post("/Get", extensibilityContractValidator, runAsyncWrapper(async ({ body }, res) => {
   if (isRepositoryOperationRequest(body)) {
     const repository = new Repository(body.import.config.accessToken);
     const { name, org } = body.resource.properties;
@@ -43,9 +34,9 @@ app.post("/Get", async ({ body }, res) => {
   }
 
   return res.json(unsupportedResourceTypeResponse);
-});
+}));
 
-app.post("/Save", async ({ body }, res) => {
+app.post("/Save", extensibilityContractValidator, runAsyncWrapper(async ({ body }, res) => {
   if (isRepositoryOperationRequest(body)) {
     const repository = new Repository(body.import.config.accessToken);
     const properties = await repository.createOrUpdate(body.resource.properties);
@@ -60,19 +51,19 @@ app.post("/Save", async ({ body }, res) => {
   }
 
   return res.json(unsupportedResourceTypeResponse);
-});
+}));
 
-app.post("/PreviewSave", ({ body }, res) => {
+app.post("/PreviewSave", extensibilityContractValidator, runAsyncWrapper(async ({ body }, res) => {
   if (isRepositoryOperationRequest(body)) {
     return res.json(createSuccessResponse(body.resource));
   }
 
   return res.json(unsupportedResourceTypeResponse);
-});
+}));
 
-app.post("/Delete", (req, res) => {
+app.post("/Delete", extensibilityContractValidator, runAsyncWrapper(async ({ body }, res) => {
   throw new Error("Not implemented.");
-});
+}));
 
 app.use(errorHandler);
 app.listen(port, host, () => {
