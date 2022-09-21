@@ -1,4 +1,5 @@
 import { Octokit } from "@octokit/rest";
+import { RequestError } from "@octokit/request-error";
 import { RepositoryProperties } from "../models";
 
 export class Repository {
@@ -25,8 +26,10 @@ export class Repository {
       });
       return properties;
     } catch (error) {
-      console.log(error);
-      return undefined;
+      if (error instanceof RequestError && error.status == 404) {
+        return undefined;
+      }
+      throw error;
     }
   }
 
