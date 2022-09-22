@@ -15,7 +15,9 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"data": "hello world"})
 	})
 
+	router.POST("/endpoints/Save", controllers.SaveEndpoint)
+
 	router.GET("/endpoints", controllers.FindEndpoints)
 
-	router.Run(":3000")
+	router.Run(":8080")
 }
