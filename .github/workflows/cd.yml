@@ -9,6 +9,8 @@ env:
   ACR_REGISTRY: bicepprovidersregistry
   BICEP_PROVIDER_NAME: github
   BICEP_PROVIDER_VERSION: v1
+  HTTP_PROVIDER_NAME: http
+  HTTP_PROVIDER_VERSION: v1
 
 permissions:
   id-token: write
@@ -31,7 +33,7 @@ jobs:
           mv oras-install/oras /usr/local/bin/
           rm -rf oras_0.14.1_*.tar.gz oras-install/
         working-directory: ${{ env.RUNNER_TEMP }}
-        
+
       - name: Az CLI login
         uses: azure/login@v1
         with:
@@ -48,6 +50,7 @@ jobs:
         run: |
           az acr login -n ${{ env.ACR_REGISTRY }}
           oras push '${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.BICEP_PROVIDER_NAME }}/types:${{ env.BICEP_PROVIDER_VERSION }}' \
+          oras push '${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.HTTP_PROVIDER_NAME }}/types:${{ env.HTTP_PROVIDER_VERSION }}' \
             --config /dev/null:application/vnd.ms.bicep.types.config.v1+json \
             ./providers/github/types.zip:application/vnd.ms.bicep.types.layer.v1+zip
 
@@ -58,7 +61,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        
+
       - name: Az CLI login
         uses: azure/login@v1
         with:
