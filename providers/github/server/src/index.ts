@@ -1,11 +1,33 @@
 import express from "express";
-import { Repository } from "./api/repository";
-import { isRepositoryOperationRequest } from "./models";
+import { Repository, RepositoryCollaborator } from "./api";
 import {
+  ExtensibleResource,
+  isRepositoryCollaboratorOperationRequest,
+  isRepositoryOperationRequest,
+} from "./models";
+import {
+  createErrorResponse,
   createSuccessResponse,
   unsupportedResourceTypeResponse,
 } from "./responses";
-import { errorHandler, extensibilityContractValidator, runAsyncWrapper } from "./middleware";
+import {
+  errorHandler,
+  extensibilityContractValidator,
+  runAsyncWrapper,
+} from "./middleware";
+
+function patchProperties<TProperties extends object>(
+  resource: ExtensibleResource<TProperties>,
+  properties: TProperties
+) {
+  return {
+    ...resource,
+    properties: {
+      ...resource.properties,
+      ...properties,
+    },
+  };
+}
 
 const port = 8080;
 const host = "0.0.0.0";
@@ -16,54 +38,111 @@ process.on("SIGINT", () => process.exit(0));
 
 app.use(express.json());
 
-app.post("/Get", extensibilityContractValidator, runAsyncWrapper(async ({ body }, res) => {
-  if (isRepositoryOperationRequest(body)) {
-    const repository = new Repository(body.import.config.accessToken);
-    const { name, org } = body.resource.properties;
-    const properties = await repository.get(name, org);
-    
-    console.log("Success");
+app.post(
+  "/Get",
+  extensibilityContractValidator,
+  runAsyncWrapper(async ({ body }, res) => {
+    const { accessToken } = body.import.config;
 
-    return res.json(createSuccessResponse({
-      ...body.resource,
-      properties: {
-        ...body.resource.properties,
-        ...properties,
-      },
-    }));
-  }
+    if (isRepositoryOperationRequest(body)) {
+      const repository = new Repository(accessToken);
+      const { name, org } = body.resource.properties;
+      const properties = await repository.get(name, org);
 
-  return res.json(unsupportedResourceTypeResponse);
-}));
+      if (!properties) {
+        return res.json(
+          createErrorResponse({
+            code: "RepositoryNotFound",
+            target: "/resource",
+            message: "The repository does not exist.",
+          })
+        );
+      }
 
-app.post("/Save", extensibilityContractValidator, runAsyncWrapper(async ({ body }, res) => {
-  if (isRepositoryOperationRequest(body)) {
-    const repository = new Repository(body.import.config.accessToken);
-    const properties = await repository.createOrUpdate(body.resource.properties);
+      return res.json(
+        createSuccessResponse(patchProperties(body.resource, properties))
+      );
+    }
 
-    return res.json(createSuccessResponse({
-      ...body.resource,
-      properties: {
-        ...body.resource.properties,
-        ...properties,
-      },
-    }));
-  }
+    if (isRepositoryCollaboratorOperationRequest(body)) {
+      const collaborator = new RepositoryCollaborator(accessToken);
+      const { repo, username, owner } = body.resource.properties;
+      const properties = await collaborator.get(repo, username, owner);
 
-  return res.json(unsupportedResourceTypeResponse);
-}));
+      if (!properties) {
+        return res.json(
+          createErrorResponse({
+            code: "CollaboratorNotFound",
+            target: "/resource",
+            message: "Could not found the collaborator in the repository.",
+          })
+        );
+      }
 
-app.post("/PreviewSave", extensibilityContractValidator, runAsyncWrapper(async ({ body }, res) => {
-  if (isRepositoryOperationRequest(body)) {
-    return res.json(createSuccessResponse(body.resource));
-  }
+      return res.json(
+        createSuccessResponse(patchProperties(body.resource, properties))
+      );
+    }
 
-  return res.json(unsupportedResourceTypeResponse);
-}));
+    return res.json(unsupportedResourceTypeResponse);
+  })
+);
 
-app.post("/Delete", extensibilityContractValidator, runAsyncWrapper(async ({ body }, res) => {
-  throw new Error("Not implemented.");
-}));
+app.post(
+  "/Save",
+  extensibilityContractValidator,
+  runAsyncWrapper(async ({ body }, res) => {
+    const { accessToken } = body.import.config;
+
+    if (isRepositoryOperationRequest(body)) {
+      const repository = new Repository(accessToken);
+      const properties = await repository.createOrUpdate(
+        body.resource.properties
+      );
+
+      return res.json(
+        createSuccessResponse(patchProperties(body.resource, properties))
+      );
+    }
+
+    if (isRepositoryCollaboratorOperationRequest(body)) {
+      const collaborator = new RepositoryCollaborator(accessToken);
+      const updatedProperties = await collaborator.createOrUpdate(
+        body.resource.properties
+      );
+
+      return res.json(
+        createSuccessResponse(patchProperties(body.resource, updatedProperties))
+      );
+    }
+
+    return res.json(unsupportedResourceTypeResponse);
+  })
+);
+
+app.post(
+  "/PreviewSave",
+  extensibilityContractValidator,
+  runAsyncWrapper(async ({ body }, res) => {
+    if (isRepositoryOperationRequest(body)) {
+      return res.json(createSuccessResponse(body.resource));
+    }
+
+    if (isRepositoryCollaboratorOperationRequest(body)) {
+      return res.json(createSuccessResponse(body.resource));
+    }
+
+    return res.json(unsupportedResourceTypeResponse);
+  })
+);
+
+app.post(
+  "/Delete",
+  extensibilityContractValidator,
+  runAsyncWrapper(async ({ body }, res) => {
+    throw new Error("Not implemented.");
+  })
+);
 
 app.use(errorHandler);
 app.listen(port, host, () => {

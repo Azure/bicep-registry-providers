@@ -1,17 +1,11 @@
 import { Octokit } from "@octokit/rest";
 import { RequestError } from "@octokit/request-error";
 import { RepositoryProperties } from "../models";
+import { GitHubResource } from "./githubResource";
 
-export class Repository {
-  private readonly oktokit: Octokit;
-
+export class Repository extends GitHubResource {
   constructor(accessToken: string) {
-    this.oktokit = new Octokit({ auth: accessToken });
-  }
-
-  private async getAuthenticatedUserLogin() {
-    const { data: user } = await this.oktokit.users.getAuthenticated();
-    return user.login;
+    super(accessToken);
   }
 
   async get(name: string, owner?: string) {

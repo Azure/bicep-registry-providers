@@ -41,3 +41,11 @@
 * **team_id**: int: The id of the team that will be granted access to this repository. This is only valid when creating a repository in an organization.
 * **visibility**: 'internal' | 'private' | 'public': Can be `public` or `private`. If your organization is associated with an enterprise account using GitHub Enterprise Cloud or GitHub Enterprise Server 2.20+, `visibility` can also be `internal`. Note: For GitHub Enterprise Server and GitHub AE, this endpoint will only list repositories available to all users on the enterprise. For more information, see "[Creating an internal repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-repository-visibility#about-internal-repositories)" in the GitHub Help documentation.
 
+## Resource repositories/collaborators@v1
+* **Valid Scope(s)**: Unknown
+### Properties
+* **owner**: string: The account owner of the repository.
+* **permission**: 'admin' | 'maintain' | 'pull' | 'push' | 'triage': The permission to grant the collaborator.
+* **repo**: string (Required): The name of the repo.
+* **username**: string (Required): The handle for the GitHub user account.
+
