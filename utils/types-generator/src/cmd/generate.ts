@@ -24,7 +24,7 @@ executeSynchronous(async () => {
   await forceWriteFile(`${outBasedir}/index.md`, writeIndexMarkdown(index));
   for (const { types, apiVersion, relativePath } of typeFiles) {
     await forceWriteFile(`${outBasedir}/${relativePath}`, writeJson(types));
-    await forceWriteFile(`${outBasedir}/${relativePath.substring(0, relativePath.lastIndexOf('.'))}.md`, writeMarkdown(provider, apiVersion, types)); 
+    await forceWriteFile(`${outBasedir}/${relativePath.substring(0, relativePath.lastIndexOf('.'))}.md`, writeMarkdown(types)); 
   }
 });
 
