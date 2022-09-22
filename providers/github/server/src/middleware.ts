@@ -3,6 +3,9 @@ import { validate, Joi, ValidationError } from "express-validation";
 import { createErrorResponse } from "./responses";
 
 export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+  console.log("Caught unhandled error:");
+  console.log(err);
+
   if (err instanceof ValidationError) {
     let target = "";
     let message = err.message;
@@ -19,6 +22,14 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
       code: "ValidationError",
       message,
       target,
+    }));
+  }
+
+  if (err instanceof Error) {
+    return res.status(200).json(createErrorResponse({
+      code: err.name,
+      message: err.message,
+      target: "",
     }));
   }
 
