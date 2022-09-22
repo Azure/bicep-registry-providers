@@ -53,7 +53,19 @@ export interface RepositoryProperties {
   [key: string]: unknown;
 }
 
-export type RepositoryOperationRequest = GitHubOperationRequest<RepositoryProperties>;
+export type RepositoryOperationRequest =
+  GitHubOperationRequest<RepositoryProperties>;
+
+export interface RepositoryCollaboratorProperties {
+  repo: string;
+  username: string;
+  owner?: string;
+  permission?: string;
+  [key: string]: unknown;
+}
+
+export type RepositoryCollaboratorRequest =
+  GitHubOperationRequest<RepositoryCollaboratorProperties>;
 
 export function isRepositoryOperationRequest(
   body: any
@@ -63,6 +75,21 @@ export function isRepositoryOperationRequest(
     body.resource.type &&
     typeof body.resource.type === "string" &&
     body.resource.type.startsWith("repositories@")
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+export function isRepositoryCollaboratorOperationRequest(
+  body: any
+): body is RepositoryCollaboratorRequest {
+  if (
+    body.resource &&
+    body.resource.type &&
+    typeof body.resource.type === "string" &&
+    body.resource.type.startsWith("repositories/collaborators@")
   ) {
     return true;
   }
