@@ -16,9 +16,15 @@ type Resource struct {
 }
 
 type ResourceProperties struct {
-	URL string `json:"URL"`
+	URL    string `json:"URL" binding:"required"`
+	Method string `json:"method"`
 }
 
 type Endpoint struct {
 	URL string `json:"title"`
+}
+
+type SaveResponse struct {
+	Status     string
+	StatusCode int
 }
