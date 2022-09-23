@@ -16,8 +16,8 @@ type Resource struct {
 }
 
 type ResourceProperties struct {
-	URL    string `json:"URL" binding:"required"`
-	Method string `json:"method,omitempty"`
+	RequestUri string `json:"requestUri" binding:"required"`
+	Method     string `json:"method,omitempty"`
 	SaveResponse
 }
 

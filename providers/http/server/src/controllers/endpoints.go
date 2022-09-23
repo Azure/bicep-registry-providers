@@ -33,7 +33,7 @@ func SaveEndpoint(c *gin.Context) {
 		return
 	}
 
-	res, err := http.Get(saveReq.Resource.Properties.URL)
+	res, err := http.Get(saveReq.Resource.Properties.RequestUri)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
