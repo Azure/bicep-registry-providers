@@ -12,6 +12,6 @@
     ```
 1. Test:
     ```sh
-    curl -X POST http://localhost:8080/endpoints/Save \
+    curl -X POST http://localhost:8080/save \
       -H 'Content-Type: application/json' \
       -d '{"import":{"provider":"http", "version":"v1"}, "resource": {"type":"request@v1", "properties": {"requestUri": "https://www.microsoft.com"}}}'

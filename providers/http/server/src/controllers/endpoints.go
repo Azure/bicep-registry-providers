@@ -10,17 +10,8 @@ import (
 	"providers/http/server/src/models"
 )
 
-// GET /endpoints
-// Get all endpoints
-func FindEndpoints(c *gin.Context) {
-	var endpoints []models.Endpoint
-
-	c.JSON(http.StatusOK, gin.H{"data": endpoints})
-}
-
-// POST /Save
-// Save an endpoint
-func SaveEndpoint(c *gin.Context) {
+// POST /save
+func Save(c *gin.Context) {
 	var saveReq models.SaveRequest
 	if err := c.ShouldBindJSON(&saveReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -46,9 +37,8 @@ func SaveEndpoint(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"resource": updatedResource})
 }
 
-// POST /PreviewSave
-// PreviewSave an endpoint
-func PreviewSaveEndpoint(c *gin.Context) {
+// POST /previewSave
+func PreviewSave(c *gin.Context) {
 	var saveReq models.SaveRequest
 	if err := c.ShouldBindJSON(&saveReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

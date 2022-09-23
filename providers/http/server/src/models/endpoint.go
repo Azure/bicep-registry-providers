@@ -25,7 +25,3 @@ type SaveResponse struct {
 	Status     string `json:"status,omitempty"`
 	StatusCode int    `json:"statusCode,omitempty"`
 }
-
-type Endpoint struct {
-	URL string `json:"title"`
-}

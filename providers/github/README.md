@@ -12,6 +12,6 @@
     ```
 1. Test:
     ```sh
-    curl -X POST http://localhost:8080/Save \
+    curl -X POST http://localhost:8080/save \
       -H 'Content-Type: application/json' \
-      -d '{"import":{"provider":"foo","version":"1.0","config":{}},"resource":{"type":"bar@v1","properties":{}}}'
+      -d '{"import":{"provider":"github","version":"v1","config":{"accessToken":"..."}},"resource":{"type":"repositories@v1","properties":{}}}'
