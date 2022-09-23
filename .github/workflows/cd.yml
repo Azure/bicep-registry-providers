@@ -7,8 +7,8 @@ on:
 
 env:
   ACR_REGISTRY: bicepprovidersregistry
-  BICEP_PROVIDER_NAME: github
-  BICEP_PROVIDER_VERSION: v1
+  GITHUB_PROVIDER_NAME: github
+  GITHUB_PROVIDER_VERSION: v1
   HTTP_PROVIDER_NAME: http
   HTTP_PROVIDER_VERSION: v1
 
@@ -41,18 +41,28 @@ jobs:
           tenant-id: ${{ secrets.ACR_TENANT_ID }}
           subscription-id: ${{ secrets.ACR_SUBSCRIPTION_ID }}
 
-      - name: Generate types.zip
+      - name: Generate github types.zip
         run: |
           cd ./providers/github/types
           zip -r ../types.zip ./
+      - name: Generate http types.zip
+        run: |
+          cd ./providers/http/types
+          zip -r ../types.zip ./
 
-      - name: Upload to registry
+      - name: Upload the github provider to registry
         run: |
           az acr login -n ${{ env.ACR_REGISTRY }}
-          oras push '${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.BICEP_PROVIDER_NAME }}/types:${{ env.BICEP_PROVIDER_VERSION }}' \
-          oras push '${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.HTTP_PROVIDER_NAME }}/types:${{ env.HTTP_PROVIDER_VERSION }}' \
+          oras push '${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.GITHUB_PROVIDER_NAME }}/types:${{ env.GITHUB_PROVIDER_VERSION }}' \
             --config /dev/null:application/vnd.ms.bicep.types.config.v1+json \
             ./providers/github/types.zip:application/vnd.ms.bicep.types.layer.v1+zip
+
+      - name: Upload the http provider to registry
+        run: |
+          az acr login -n ${{ env.ACR_REGISTRY }}
+          oras push '${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.HTTP_PROVIDER_NAME }}/types:${{ env.HTTP_PROVIDER_VERSION }}' \
+            --config /dev/null:application/vnd.ms.bicep.types.config.v1+json \
+            ./providers/http/types.zip:application/vnd.ms.bicep.types.layer.v1+zip
 
   push-server:
     name: Push Server Container
@@ -73,9 +83,16 @@ jobs:
         run: |
           az acr login -n ${{ env.ACR_REGISTRY }}
 
-      - name: Build and push Docker image
+      - name: Build and push the github provider to Docker image
         uses: docker/build-push-action@v3
         with:
           context: ./providers/github/server
           push: true
-          tags: ${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.BICEP_PROVIDER_NAME }}/server:${{ env.BICEP_PROVIDER_VERSION }}
+          tags: ${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.GITHUB_PROVIDER_NAME }}/server:${{ env.GITHUB_PROVIDER_VERSION }}
+
+      - name: Build and push the http provider to Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./providers/http/server
+          push: true
+          tags: ${{ env.ACR_REGISTRY }}.azurecr.io/${{ env.HTTP_PROVIDER_NAME }}/server:${{ env.HTTP_PROVIDER_VERSION }}
