@@ -39,7 +39,7 @@ process.on("SIGINT", () => process.exit(0));
 app.use(express.json());
 
 app.post(
-  "/Get",
+  "/get",
   extensibilityContractValidator,
   runAsyncWrapper(async ({ body }, res) => {
     const { accessToken } = body.import.config;
@@ -89,7 +89,7 @@ app.post(
 );
 
 app.post(
-  "/Save",
+  "/save",
   extensibilityContractValidator,
   runAsyncWrapper(async ({ body }, res) => {
     const { accessToken } = body.import.config;
@@ -121,7 +121,7 @@ app.post(
 );
 
 app.post(
-  "/PreviewSave",
+  "/previewSave",
   extensibilityContractValidator,
   runAsyncWrapper(async ({ body }, res) => {
     if (isRepositoryOperationRequest(body)) {
@@ -137,7 +137,7 @@ app.post(
 );
 
 app.post(
-  "/Delete",
+  "/delete",
   extensibilityContractValidator,
   runAsyncWrapper(async ({ body }, res) => {
     throw new Error("Not implemented.");
@@ -148,17 +148,3 @@ app.use(errorHandler);
 app.listen(port, host, () => {
   console.log(`⚡️[server]: Server is running at https://${host}:${port}`);
 });
-
-/* Test request body:
-{
-  "import": {
-    "provider": "foo",
-    "version": "1.0",
-    "config": {}
-  },
-  "resource": {
-    "type": "bar@v1",
-    "properties": {}
-  }
-}
-*/

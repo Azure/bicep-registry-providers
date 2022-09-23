@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 
 	"providers/http/server/src/controllers"
@@ -11,14 +9,8 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"data": "hello world"})
-	})
-
-	router.POST("/endpoints/Save", controllers.SaveEndpoint)
-	router.POST("/endpoints/PreviewSave", controllers.PreviewSaveEndpoint)
-
-	router.GET("/endpoints", controllers.FindEndpoints)
+	router.POST("/save", controllers.Save)
+	router.POST("/previewSave", controllers.PreviewSave)
 
 	router.Run(":8080")
 }
