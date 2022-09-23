@@ -16,6 +16,7 @@ func main() {
 	})
 
 	router.POST("/endpoints/Save", controllers.SaveEndpoint)
+	router.POST("/endpoints/PreviewSave", controllers.PreviewSaveEndpoint)
 
 	router.GET("/endpoints", controllers.FindEndpoints)
 

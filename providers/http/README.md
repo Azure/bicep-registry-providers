@@ -14,4 +14,4 @@
     ```sh
     curl -X POST http://localhost:8080/endpoints/Save \
       -H 'Content-Type: application/json' \
-      -d '{"import":{"provider":"foo", "version":"1.0"}, "resource": {"type":"myRes@v1", "properties": {"url": "www.microsoft.com"}}}'
+      -d '{"import":{"provider":"http", "version":"v1"}, "resource": {"type":"request@v1", "properties": {"requestUri": "https://www.microsoft.com"}}}'

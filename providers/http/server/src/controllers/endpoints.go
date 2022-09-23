@@ -46,13 +46,31 @@ func SaveEndpoint(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"resource": updatedResource})
 }
 
+// POST /PreviewSave
+// PreviewSave an endpoint
+func PreviewSaveEndpoint(c *gin.Context) {
+	var saveReq models.SaveRequest
+	if err := c.ShouldBindJSON(&saveReq); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := validateRequest(saveReq)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"resource": saveReq.Resource})
+}
+
 func validateRequest(req models.SaveRequest) error {
 	if req.Resource.Properties.Method != "" && strings.ToUpper(req.Resource.Properties.Method) != http.MethodGet {
 		return errors.New("only GET method is supported")
 	}
 
-	if req.Resource.Properties.URL == "" {
-		return errors.New("url cannot be empty")
+	if req.Resource.Properties.RequestUri == "" {		
+		return errors.New("requestUri cannot be empty")
 	}
 
 	return nil
