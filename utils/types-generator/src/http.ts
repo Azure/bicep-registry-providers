@@ -7,7 +7,10 @@ function generateHttpV1Types() {
   const factory = new TypeFactory();
 
   const props = factory.addType(new ObjectType('request@v1', {
-    requestUri: new ObjectProperty(factory.builtInTypes[BuiltInTypeKind.String], ObjectPropertyFlags.None, 'The HTTP request URI to submit a GET request to.'),
+    requestUri: new ObjectProperty(factory.builtInTypes[BuiltInTypeKind.String], ObjectPropertyFlags.Required, 'The HTTP request URI to submit a GET request to.'),
+    method: new ObjectProperty(factory.builtInTypes[BuiltInTypeKind.String], ObjectPropertyFlags.None, 'The HTTP method to submit request to the given URI.'),
+    status: new ObjectProperty(factory.builtInTypes[BuiltInTypeKind.String], ObjectPropertyFlags.ReadOnly, 'The status of the HTTP request.'),
+    statusCode: new ObjectProperty(factory.builtInTypes[BuiltInTypeKind.Int], ObjectPropertyFlags.ReadOnly, 'The status code of the HTTP request.'),
   }));
   factory.addType(new ResourceType('request@v1', ScopeType.Unknown, undefined, props, ResourceFlags.None));
   
