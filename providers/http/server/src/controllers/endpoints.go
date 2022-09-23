@@ -39,12 +39,11 @@ func SaveEndpoint(c *gin.Context) {
 		return
 	}
 
-	saveResponse := models.SaveResponse{
-		Status:     res.Status,
-		StatusCode: res.StatusCode,
-	}
+	updatedResource := saveReq.Resource
+	updatedResource.Properties.Status = res.Status
+	updatedResource.Properties.StatusCode = res.StatusCode
 
-	c.JSON(http.StatusOK, gin.H{"data": saveResponse})
+	c.JSON(http.StatusOK, gin.H{"resource": updatedResource})
 }
 
 func validateRequest(req models.SaveRequest) error {
