@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -25,5 +27,33 @@ func SaveEndpoint(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": saveReq})
+	err := validateRequest(saveReq)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	res, err := http.Get(saveReq.Resource.Properties.URL)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	updatedResource := saveReq.Resource
+	updatedResource.Properties.Status = res.Status
+	updatedResource.Properties.StatusCode = res.StatusCode
+
+	c.JSON(http.StatusOK, gin.H{"resource": updatedResource})
+}
+
+func validateRequest(req models.SaveRequest) error {
+	if req.Resource.Properties.Method != "" && strings.ToUpper(req.Resource.Properties.Method) != http.MethodGet {
+		return errors.New("only GET method is supported")
+	}
+
+	if req.Resource.Properties.URL == "" {
+		return errors.New("url cannot be empty")
+	}
+
+	return nil
 }
