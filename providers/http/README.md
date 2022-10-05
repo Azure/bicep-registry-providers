@@ -14,4 +14,4 @@
     ```sh
     curl -X POST http://localhost:8080/save \
       -H 'Content-Type: application/json' \
-      -d '{"import":{"provider":"http", "version":"v1"}, "resource": {"type":"request@v1", "properties": {"requestUri": "https://www.microsoft.com"}}}'
+      -d '{"import":{"provider":"http", "version":"v1"}, "resource": {"type":"request@v1", "properties": {"uri": "https://api.weather.gov/gridpoints/SEW/131,69/forecast", "format": "json"}}}'

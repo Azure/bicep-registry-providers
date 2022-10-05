@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -24,15 +25,15 @@ func Save(c *gin.Context) {
 		return
 	}
 
-	res, err := http.Get(saveReq.Resource.Properties.RequestUri)
+	body, statusCode, err := makeRequest(saveReq)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	updatedResource := saveReq.Resource
-	updatedResource.Properties.Status = res.Status
-	updatedResource.Properties.StatusCode = res.StatusCode
+	updatedResource.Properties.StatusCode = statusCode
+	updatedResource.Properties.Body = body
 
 	c.JSON(http.StatusOK, gin.H{"resource": updatedResource})
 }
@@ -55,13 +56,41 @@ func PreviewSave(c *gin.Context) {
 }
 
 func validateRequest(req models.SaveRequest) error {
-	if req.Resource.Properties.Method != "" && strings.ToUpper(req.Resource.Properties.Method) != http.MethodGet {
-		return errors.New("only GET method is supported")
-	}
-
-	if req.Resource.Properties.RequestUri == "" {		
-		return errors.New("requestUri cannot be empty")
+	if req.Resource.Properties.Uri == "" {
+		return errors.New("uri cannot be empty")
 	}
 
 	return nil
+}
+
+func makeRequest(saveReq models.SaveRequest) (any, int, error) {
+	res, err := http.Get(saveReq.Resource.Properties.Uri)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var responseBody interface{}
+	if saveReq.Resource.Properties.Format == "json" {
+		bytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		err = json.Unmarshal(bytes, &responseBody)
+		if err != nil {
+			return nil, 0, err
+		}
+	} else if saveReq.Resource.Properties.Format == "raw" {
+		bytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, 0, err
+		}
+		responseBody = string(bytes)
+	} else if saveReq.Resource.Properties.Format == "" {
+		responseBody = nil
+	} else {
+		return nil, 0, errors.New("format option is unrecognized")
+	}
+
+	return responseBody, res.StatusCode, nil
 }

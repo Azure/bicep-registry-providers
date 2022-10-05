@@ -16,12 +16,12 @@ type Resource struct {
 }
 
 type ResourceProperties struct {
-	RequestUri string `json:"requestUri" binding:"required"`
-	Method     string `json:"method,omitempty"`
+	Uri    string `json:"uri" binding:"required"`
+	Format string `json:"format"`
 	SaveResponse
 }
 
 type SaveResponse struct {
-	Status     string `json:"status,omitempty"`
-	StatusCode int    `json:"statusCode,omitempty"`
+	StatusCode int `json:"statusCode,omitempty"`
+	Body       any `json:"body,omitempty"`
 }
