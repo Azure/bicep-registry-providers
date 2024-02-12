@@ -4,8 +4,8 @@ import yargs from 'yargs';
 import path from 'path';
 import { series } from 'async';
 import { mkdir, writeFile } from 'fs/promises';
-import { writeJson, writeIndexJson } from 'bicep-types/lib/src/writers/json';
-import { writeMarkdown, writeIndexMarkdown } from 'bicep-types/lib/src/writers/markdown';
+import { writeTypesJson, writeIndexJson } from 'bicep-types';
+import { writeMarkdown, writeIndexMarkdown } from 'bicep-types';
 import { generateHttpTypes } from '../http';
 
 const argsConfig = yargs
@@ -23,7 +23,7 @@ executeSynchronous(async () => {
   await forceWriteFile(`${outBasedir}/index.json`, writeIndexJson(index));
   await forceWriteFile(`${outBasedir}/index.md`, writeIndexMarkdown(index));
   for (const { types, apiVersion, relativePath } of typeFiles) {
-    await forceWriteFile(`${outBasedir}/${relativePath}`, writeJson(types));
+    await forceWriteFile(`${outBasedir}/${relativePath}`, writeTypesJson(types));
     await forceWriteFile(`${outBasedir}/${relativePath.substring(0, relativePath.lastIndexOf('.'))}.md`, writeMarkdown(types)); 
   }
 });
