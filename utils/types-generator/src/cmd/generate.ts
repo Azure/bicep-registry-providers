@@ -4,8 +4,8 @@ import yargs from 'yargs';
 import path from 'path';
 import { series } from 'async';
 import { mkdir, writeFile } from 'fs/promises';
-import { writeJson, writeIndexJson } from 'bicep-types/lib/src/writers/json';
-import { writeMarkdown, writeIndexMarkdown } from 'bicep-types/lib/src/writers/markdown';
+import { writeJson, writeIndexJson } from 'bicep-types';
+import { writeMarkdown, writeIndexMarkdown } from 'bicep-types';
 import { generateHttpTypes } from '../http';
 
 const argsConfig = yargs
