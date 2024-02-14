@@ -2,6 +2,7 @@
   "name": "types-generator",
   "version": "0.0.0",
   "scripts": {
+    "prebuild": "npm i --prefix ../../bicep-types/src/bicep-types && npm run build --prefix ../../bicep-types/src/bicep-types",
     "build": "tsc -p .",
     "generate": "ts-node src/cmd/generate",
     "lint": "eslint src --ext ts",
