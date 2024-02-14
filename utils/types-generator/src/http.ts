@@ -35,7 +35,13 @@ export function generateHttpTypes(logFunc: (val: string) => void) {
       types: generateHttpV1Types(),
     }
   ];
-  const index = buildIndex(typeFiles, logFunc);
+
+  const typeSettings = {
+    Name: 'ThirdPartyProvider',
+    Version: '1.0.0',
+    IsSingleton: false,
+  }
+  const index = buildIndex(typeFiles, logFunc, typeSettings);
 
   return {
     index,
