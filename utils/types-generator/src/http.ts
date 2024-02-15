@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { ObjectTypePropertyFlags, ObjectType, ResourceFlags, ResourceType, ScopeType, StringLiteralType, TypeFactory, UnionType } from 'bicep-types';
+import { ObjectTypePropertyFlags, ObjectType, ResourceFlags, ResourceType, ScopeType, StringLiteralType, TypeFactory, UnionType, TypeIndexEntry, TypeFile } from 'bicep-types';
 import { buildIndex } from 'bicep-types';
 
 function generateHttpV1Types() {
@@ -27,6 +27,34 @@ function generateHttpV1Types() {
   return factory.types;
 }
 
+function generateLocations(typeFiles: TypeFile[]): [number, number] {
+  const factory = new TypeFactory();
+
+  const configFactory = new TypeFactory();
+  const configLocation = configFactory.addObjectType('config', {
+    configProp: {
+      Type: factory.addStringType(),
+      Flags: ObjectTypePropertyFlags.Required,
+      Description: 'Config property',
+    },
+  });
+
+  const fallbackTypeLocation = configFactory.addResourceType('fallback', ScopeType.Unknown, undefined, configFactory.addObjectType('fallback body', {
+    bodyProp: {
+      Type: factory.addStringType(),
+      Flags: ObjectTypePropertyFlags.Required,
+      Description: 'Body property',
+    },
+  }), ResourceFlags.None);
+
+  typeFiles.push({
+    relativePath: './types.json',
+    types: configFactory.types,
+  });
+
+  return [configLocation, fallbackTypeLocation];
+}
+
 export function generateHttpTypes(logFunc: (val: string) => void) {
   const typeFiles = [
     {
@@ -36,12 +64,24 @@ export function generateHttpTypes(logFunc: (val: string) => void) {
     }
   ];
 
+  const [configLocation, fallbackTypeLocation] = generateLocations(typeFiles);
+
   const typeSettings = {
     Name: 'ThirdPartyProvider',
     Version: '1.0.0',
     IsSingleton: false,
+    Configuration: {
+      Index: configLocation,
+      RelativePath: './types.json',
+    },
   }
-  const index = buildIndex(typeFiles, logFunc, typeSettings);
+
+  const fallbackResourceType = {
+    Index: fallbackTypeLocation,
+    RelativePath: './types.json',
+  };
+
+  const index = buildIndex(typeFiles, logFunc, typeSettings, fallbackResourceType);
 
   return {
     index,
