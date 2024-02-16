@@ -18,10 +18,12 @@ executeSynchronous(async () => {
   const outBasedir = args['out-basedir'];
   const provider = args['provider'];
 
-  const { index, typeFiles } = generateTypes(provider, console.log);
+  const { index, typeFiles, rootTypeFiles } = generateTypes(provider, console.log);
 
   await forceWriteFile(`${outBasedir}/index.json`, writeIndexJson(index));
   await forceWriteFile(`${outBasedir}/index.md`, writeIndexMarkdown(index));
+  await forceWriteFile(`${outBasedir}/types.json`, writeJson(rootTypeFiles[0].types)); // Access the 'types' property of the first element in the 'rootTypeFiles' array
+  await forceWriteFile(`${outBasedir}/types.md`, writeJson(rootTypeFiles[0].types));
   for (const { types, apiVersion, relativePath } of typeFiles) {
     await forceWriteFile(`${outBasedir}/${relativePath}`, writeJson(types));
     await forceWriteFile(`${outBasedir}/${relativePath.substring(0, relativePath.lastIndexOf('.'))}.md`, writeMarkdown(types)); 

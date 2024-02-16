@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { ObjectTypePropertyFlags, ObjectType, ResourceFlags, ResourceType, ScopeType, StringLiteralType, TypeFactory, UnionType, TypeIndexEntry, TypeFile } from 'bicep-types';
+import { ObjectTypePropertyFlags, ObjectType, ResourceFlags, ResourceType, ScopeType, StringLiteralType, TypeFactory, UnionType, TypeIndexEntry, TypeFile, BicepType } from 'bicep-types';
 import { buildIndex } from 'bicep-types';
 
 function generateHttpV1Types() {
@@ -27,7 +27,8 @@ function generateHttpV1Types() {
   return factory.types;
 }
 
-function generateLocations(typeFiles: TypeFile[]): [number, number] {
+//Should fallback type even be in the resources array? 
+function generateLocations(): [number, number, BicepType[]] {
   const factory = new TypeFactory();
 
   const configFactory = new TypeFactory();
@@ -47,12 +48,12 @@ function generateLocations(typeFiles: TypeFile[]): [number, number] {
     },
   }), ResourceFlags.None);
 
-  typeFiles.push({
-    relativePath: './types.json',
-    types: configFactory.types,
-  });
+  // typeFiles.push({
+  //   relativePath: './types.json',
+  //   types: configFactory.types,
+  // });
 
-  return [configLocation, fallbackTypeLocation];
+  return [configLocation, fallbackTypeLocation, configFactory.types];
 }
 
 export function generateHttpTypes(logFunc: (val: string) => void) {
@@ -64,7 +65,15 @@ export function generateHttpTypes(logFunc: (val: string) => void) {
     }
   ];
 
-  const [configLocation, fallbackTypeLocation] = generateLocations(typeFiles);
+  const [configLocation, fallbackTypeLocation, typeArray] = generateLocations();
+
+  const rootTypeFiles = [
+    {
+      apiVersion: '1.0.0',
+      relativePath: './types.json',
+      types: typeArray,
+    }
+  ];
 
   const typeSettings = {
     Name: 'ThirdPartyProvider',
@@ -86,5 +95,6 @@ export function generateHttpTypes(logFunc: (val: string) => void) {
   return {
     index,
     typeFiles,
+    rootTypeFiles,
   };
 }
