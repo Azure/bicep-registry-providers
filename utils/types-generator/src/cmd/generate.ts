@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import path from 'path';
 import { series } from 'async';
 import { mkdir, writeFile } from 'fs/promises';
-import { writeJson, writeIndexJson } from 'bicep-types';
+import { writeTypesJson, writeIndexJson } from 'bicep-types';
 import { writeMarkdown, writeIndexMarkdown } from 'bicep-types';
 import { generateHttpTypes } from '../http';
 
@@ -22,10 +22,10 @@ executeSynchronous(async () => {
 
   await forceWriteFile(`${outBasedir}/index.json`, writeIndexJson(index));
   await forceWriteFile(`${outBasedir}/index.md`, writeIndexMarkdown(index));
-  await forceWriteFile(`${outBasedir}/types.json`, writeJson(rootTypeFiles[0].types)); // Access the 'types' property of the first element in the 'rootTypeFiles' array
-  await forceWriteFile(`${outBasedir}/types.md`, writeJson(rootTypeFiles[0].types));
+  await forceWriteFile(`${outBasedir}/types.json`, writeTypesJson(rootTypeFiles[0].types)); // Access the 'types' property of the first element in the 'rootTypeFiles' array
+  await forceWriteFile(`${outBasedir}/types.md`, writeTypesJson(rootTypeFiles[0].types));
   for (const { types, apiVersion, relativePath } of typeFiles) {
-    await forceWriteFile(`${outBasedir}/${relativePath}`, writeJson(types));
+    await forceWriteFile(`${outBasedir}/${relativePath}`, writeTypesJson(types));
     await forceWriteFile(`${outBasedir}/${relativePath.substring(0, relativePath.lastIndexOf('.'))}.md`, writeMarkdown(types)); 
   }
 });
